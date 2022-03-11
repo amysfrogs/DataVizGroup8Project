@@ -72,13 +72,10 @@ function drawMap(world, data) {
     'data-slider-max="' + maxRank + '" data-slider-step="1" data-slider-value="' + selectedTopN + '"/>';
 
     d3.select('.topNSlider').html(topNSliderHtml); 
-    
-    if(selectedTopN < maxRank)
-        maxRank = selectedTopN;
 
     //colors for metrics
     var colorScale = d3.scaleSequential()
-        .interpolator(d3.interpolateRgb("darkgreen", "red"))
+        .interpolator(d3.interpolateRgb("gold", "steelblue"))
         .domain([minRank,maxRank]);
 
     features.forEach(function (d) {
