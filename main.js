@@ -22,17 +22,14 @@ svg.call(zoom);
 var map = svg.append("g")
     .attr("class", "map");
 
-d3.queue()
-    .defer(d3.json, "./data/50m.json")
-    .defer(d3.csv, "./data/ConsolidatedHappiness.csv")
-    .await(function (error, world, data) {
-        if (error) {
-            console.error('Oh dear, something went wrong: ' + error);
-        }
-        else {
-            drawMap(world, data);
-        }
-    });
+Promise.all([
+        d3.json("./data/50m.json"),
+        d3.csv("./data/ConsolidatedHappiness.csv")
+    ]).then(d => {
+        const world = d[0]
+        const data = d[1]
+        drawMap(world, data);      
+    })
 
 function drawMap(world, data) {
     // geoMercator projection
@@ -126,7 +123,6 @@ function drawMap(world, data) {
                 .style('visibility', "hidden");
         });
 
-
     // With JQuery
     $('#topNSlider').slider({
         tooltip: 'always'
@@ -142,3 +138,22 @@ function drawMap(world, data) {
         drawMap(world, data);
     })
 }
+//line chart of Happiness Score vs Crime Data for selected Country
+const dualAxisWidth = width / 3;
+const dualAxisHeight = height / 2;
+const margin = {top: 30, left: 50, right: 40, bottom: 30}
+const svgDual = d3.select('body')
+    .append('svg')
+    .attr('width', dualAxisWidth)
+    .attr('height', dualAxisHeight)
+
+//file paths for data
+const Happiness = "../data/ConsolidatedHappiness.csv"
+const Crime = "../../data/IntentionalHomicidesFormatted.csv"
+
+Promise.all([
+    d3.csv(Happiness),
+    d3.csv(Crime)
+]).then(data => {
+    console.log(data[0])
+})
