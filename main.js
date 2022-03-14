@@ -58,10 +58,10 @@ function drawMap(world, data) {
             }
         
             if(minRank > d['Happiness rank'])
-                minRank = d['Happiness rank'];
+                minRank = +d['Happiness rank'];
 
             if(maxRank < d['Happiness rank'])
-                maxRank = d['Happiness rank'];
+                maxRank = +d['Happiness rank'];
         }
     });
 
@@ -139,21 +139,80 @@ function drawMap(world, data) {
     })
 }
 //line chart of Happiness Score vs Crime Data for selected Country
-const dualAxisWidth = width / 3;
-const dualAxisHeight = height / 2;
-const margin = {top: 30, left: 50, right: 40, bottom: 30}
-const svgDual = d3.select('body')
+const margin = {top: 10, left: 10, right: 20, bottom: 25}
+const dualAxisWidth = (width / 2) - (margin.left + margin.right) ;
+const dualAxisHeight = (height / 2) - (margin.top + margin.bottom);
+
+
+/*var dualAxis = svg.append("g")
+    .attr("class", "dualAxis")
+    .attr('width', dualAxisWidth + margin.left + margin.right)
+    .attr('height', dualAxisHeight + margin.top + margin.bottom)
+    .append('g')
+        .attr('transform', 'translate(' + (width * 0.75) + "," + margin.top + ")");
+*/
+const dualAxis = d3.select('body')
     .append('svg')
-    .attr('width', dualAxisWidth)
-    .attr('height', dualAxisHeight)
+    .attr('width', dualAxisWidth + margin.left + margin.right)
+    .attr('height', dualAxisHeight + margin.top + margin.bottom)
+    //.attr("viewBox", (width/2) + " 10 " + dualAxisWidth + " " + dualAxisHeight)
+    .append('g')
+        .attr('transform', 'translate(' + margin.left + "," + margin.top + ")");
 
 //file paths for data
 const Happiness = "../data/ConsolidatedHappiness.csv"
-const Crime = "../../data/IntentionalHomicidesFormatted.csv"
-
+const Crime = "../data/IntentionalHomicidesFormatted.csv"
+//open files
 Promise.all([
     d3.csv(Happiness),
     d3.csv(Crime)
 ]).then(data => {
-    console.log(data[0])
+    const happiness_data = data[0];
+    const crime_data = data[1];
+    //find min and max for use with scales
+    const year_min_max = d3.extent(crime_data, d => new Date(d.Year))
+    const crime_max = d3.max(crime_data, d => d.RateOfHomicides)
+    const crime_min_max = [0, +crime_max]
+    const happiness_min = d3.min(happiness_data, d => +d['Happiness rank'])
+    const happiness_max = d3.max(happiness_data, d => +d['Happiness rank'])
+    const happiness_min_max = [happiness_min, happiness_max]
+    //add scales
+    const xScale = d3.scaleTime()
+        .domain(year_min_max)
+        .range([margin.left, `${dualAxisWidth}` - margin.right]);
+    const y1Scale = d3.scaleLinear()
+        .domain(crime_min_max)
+        .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
+    const y2Scale = d3.scaleLinear()
+        .domain(happiness_min_max)
+        .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
+    //add axis generators
+    const xAxis = d3.axisBottom().scale(xScale);
+    const y1Axis = d3.axisLeft().scale(y1Scale);
+    const y2Axis = d3.axisRight().scale(y2Scale);
+    //append x axis
+    dualAxis.append('g')
+        .attr('class', 'axis')
+        .attr('transform', "translate(0," + y1Scale(0) + ")")
+        .call(xAxis)
+        .selectAll('text')
+        .style('text-anchor', 'end')
+        .attr('dx', '-0.8em')
+        .attr('dy', '0.15em')
+        .attr('transform', 'rotate(-65)')
+    //append y1 axis
+    dualAxis.append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .call(y1Axis)
+    //append y2 axis
+    const y2AxisShift = dualAxisWidth - margin.right
+    dualAxis.append('g')
+        .attr('class', 'axis')
+        .attr('transform', 'translate(' + y2AxisShift + ', 0)')
+        .call(y2Axis)
+
+
+    
+
 })
