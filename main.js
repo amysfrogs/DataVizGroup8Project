@@ -139,18 +139,10 @@ function drawMap(world, data) {
     })
 }
 //line chart of Happiness Score vs Crime Data for selected Country
-const margin = {top: 10, left: 10, right: 20, bottom: 25}
+const margin = {top: 20, left: 20, right: 30, bottom: 30}
 const dualAxisWidth = (width / 2) - (margin.left + margin.right) ;
 const dualAxisHeight = (height / 2) - (margin.top + margin.bottom);
 
-
-/*var dualAxis = svg.append("g")
-    .attr("class", "dualAxis")
-    .attr('width', dualAxisWidth + margin.left + margin.right)
-    .attr('height', dualAxisHeight + margin.top + margin.bottom)
-    .append('g')
-        .attr('transform', 'translate(' + (width * 0.75) + "," + margin.top + ")");
-*/
 const dualAxis = d3.select('body')
     .append('svg')
     .attr('width', dualAxisWidth + margin.left + margin.right)
@@ -169,13 +161,28 @@ Promise.all([
 ]).then(data => {
     const happiness_data = data[0];
     const crime_data = data[1];
+
+    
+
+    //update this when you add ability to click on a country
+    let selectedCountry = 'Switzerland'
+
+    function crimeLookup (d) {
+        d.forEach(function (d) {
+            if (d['country'] == selectedCountry) {
+             return d
+            }
+        }) 
+    }
+    
+    let crimeRate = {};
+    crime_data.forEach((d, i) => crimeRate[i] = d.Year, d.RateOfCrime)
+    
     //find min and max for use with scales
     const year_min_max = d3.extent(crime_data, d => new Date(d.Year))
     const crime_max = d3.max(crime_data, d => d.RateOfHomicides)
     const crime_min_max = [0, +crime_max]
-    const happiness_min = d3.min(happiness_data, d => +d['Happiness rank'])
-    const happiness_max = d3.max(happiness_data, d => +d['Happiness rank'])
-    const happiness_min_max = [happiness_min, happiness_max]
+    const happiness_min_max = d3.extent(happiness_data, d => +d['Happiness rank'])
     //add scales
     const xScale = d3.scaleTime()
         .domain(year_min_max)
@@ -211,6 +218,44 @@ Promise.all([
         .attr('class', 'axis')
         .attr('transform', 'translate(' + y2AxisShift + ', 0)')
         .call(y2Axis)
+    //add axis labels
+    dualAxis.append('text')
+        .attr('class', 'axisLabel')
+        .attr('text-anchor', 'end')
+        .attr('x', dualAxisWidth/2)
+        .attr('y', dualAxisHeight + margin.top + 10)
+        .text('Year')
+    dualAxis.append('text')
+        .attr('class', 'axisLabel')
+        .attr('text-anchor', 'end')
+        .attr('transform', 'rotate(-90)')
+        .attr('x',  -((dualAxisHeight - margin.bottom )/2))
+        .attr('y', -margin.left + 20)
+        .text('Crime Rate')
+    dualAxis.append('text')
+        .attr('class', 'axisLabel')
+        .attr('text-anchor', 'end')
+        .attr('transform', 'rotate(-90)')
+        .attr('x',  -((dualAxisHeight - margin.bottom - margin.top)/2) + 20)
+        .attr('y', (margin.left + y2AxisShift) + 25)
+        .text('Happiness Rank')
+    //line generator for crime
+    const lineGenCrime = d3.line()
+        .x(d => xScale(d.x))
+        .y(d => y1Scale(d.y))
+    //line generator for happiness
+    const lineGenHappy = d3.line()
+        .x(d => xScale(d.x))
+        .y(d => y2Scale(d.y))
+    //Bind data and add path elements for crime data
+    const lineChartCrime = svg.selectAll('.Line')
+        .data(parseInt(crimeLookup(crime_data)['RateOfHomicides']))
+        .enter()
+        .append('path')
+        .attr('d', d => lineGenCrime(d))
+        .attr('fill', 'none')
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', 2)
 
 
     
