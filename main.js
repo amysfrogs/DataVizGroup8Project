@@ -26,8 +26,10 @@ Promise.all([
         d3.json("./data/50m.json"),
         d3.csv("./data/ConsolidatedHappiness.csv")
     ]).then(d => {
-        const world = d[0]
-        const data = d[1]
+        const world = d[0];
+        const data = d[1];
+
+
         drawMap(world, data);      
     })
 
@@ -79,7 +81,10 @@ function drawMap(world, data) {
         d.details = details[d.properties.name] ? details[d.properties.name] : {};
     });
 
+
+
     map.append("g")
+        .attr('class', 'basemap')
         .selectAll("path")
         .data(features)
         .enter().append("path")
@@ -139,7 +144,7 @@ function drawMap(world, data) {
     })
 }
 //line chart of Happiness Score vs Crime Data for selected Country
-const margin = {top: 20, left: 20, right: 30, bottom: 30}
+const margin = {top: 20, left: 30, right: 30, bottom: 30}
 const dualAxisWidth = (width / 2) - (margin.left + margin.right) ;
 const dualAxisHeight = (height / 2) - (margin.top + margin.bottom);
 
@@ -150,7 +155,6 @@ const dualAxis = d3.select('body')
     //.attr("viewBox", (width/2) + " 10 " + dualAxisWidth + " " + dualAxisHeight)
     .append('g')
         .attr('transform', 'translate(' + margin.left + "," + margin.top + ")");
-
 //file paths for data
 const Happiness = "../data/ConsolidatedHappiness.csv"
 const Crime = "../data/IntentionalHomicidesFormatted.csv"
@@ -161,22 +165,36 @@ Promise.all([
 ]).then(data => {
     const happiness_data = data[0];
     const crime_data = data[1];
-
-    
+    //convert column formats for crime data
+    crime_data.forEach( d => {
+        d.country = d.country;
+        d.Year = new Date(d.Year, 0);
+        d.NumberOfHomicides = +d.NumberOfHomicides
+        d.RateOfHomicides = +d.RateOfHomicides
+    })
+    //convert column formats for happiness data, plus change name of Country or region column to country to match crime data
+    happiness_data.forEach( d => {
+        d.Year = new Date(d.Year, 0);
+        d['Happiness rank'] = +d['Happiness rank']
+        d['country'] = d['Country or region']
+        d.Score = +d.Score
+        d['GDP per capita'] = +d['GDP per capita']
+        d['Social support Index'] = +d['Social support Index']
+        d['Healthy life expectancy'] = +d['Healthy life expectancy']
+        d['Freedom Index'] = +d['Freedom Index']
+        d['Generosity Index'] = +d['Generosity Index']
+        d['Corruption Index'] = +d['Corruption Index']
+    })
 
     //update this when you add ability to click on a country
-    let selectedCountry = 'Switzerland'
+    let selectedCountry = 'Colombia'
 
-    function crimeLookup (d) {
-        d.forEach(function (d) {
-            if (d['country'] == selectedCountry) {
-             return d
-            }
-        }) 
-    }
+    let selectedCrimeData = crime_data.filter(function (a) {return a.country === selectedCountry;});
+    let selectedHappinessData = happiness_data.filter(function (a) {return a.country === selectedCountry;});
+
+    console.log(selectedHappinessData)
+    console.log(selectedCrimeData)
     
-    let crimeRate = {};
-    crime_data.forEach((d, i) => crimeRate[i] = d.Year, d.RateOfCrime)
     
     //find min and max for use with scales
     const year_min_max = d3.extent(crime_data, d => new Date(d.Year))
@@ -241,21 +259,36 @@ Promise.all([
         .text('Happiness Rank')
     //line generator for crime
     const lineGenCrime = d3.line()
-        .x(d => xScale(d.x))
-        .y(d => y1Scale(d.y))
+        .x(d => xScale(d.Year))
+        .y(d => y1Scale(d.RateOfHomicides))
     //line generator for happiness
     const lineGenHappy = d3.line()
         .x(d => xScale(d.x))
         .y(d => y2Scale(d.y))
+        .defined(function (d) {return d.value;})
     //Bind data and add path elements for crime data
-    const lineChartCrime = svg.selectAll('.Line')
-        .data(parseInt(crimeLookup(crime_data)['RateOfHomicides']))
+    const lineChartCrime = dualAxis.append('g')
+        .attr('class', 'CrimeLine')
+        .selectAll('lines')
+        .data([selectedCrimeData])
         .enter()
         .append('path')
         .attr('d', d => lineGenCrime(d))
         .attr('fill', 'none')
         .attr('stroke', 'steelblue')
         .attr('stroke-width', 2)
+    //Bind data and add path elements for happiness data
+    const lineChartHappy = dualAxis.append('g')
+        .attr('class', 'HappyLine')
+        .selectAll('lines')
+        .data([selectedHappinessData])
+        .enter()
+        .append('path')
+        .attr('d', d => lineGenHappy(d))
+        .attr('fill', 'none')
+        .attr('stroke', 'red')
+        .attr('stroke-width', 2)
+        
 
 
     
