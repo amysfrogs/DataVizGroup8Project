@@ -22,13 +22,13 @@
         body {
             margin: 0px;
         }
-        path {
+        .basemap {
             stroke: darkgrey;
             stroke-width: 0.25px;
             fill: lightgrey;
             color: aliceblue;
-        }
-        path:hover {
+        
+        .basemap:hover {
             opacity: 0.6;
             stroke: darkgrey;
             stroke-width: 2px;
@@ -36,13 +36,13 @@
         .details {
             top: 0px;
             visibility: hidden;
-            width: 300px;
+            width: auto;
             padding: 30px;
-            height: 100%;
-            opacity: 0.4;
+            height: auto;
+            opacity: 0.9;
             position: absolute;
             background-color: aliceblue;
-            font-size: 40px;
+            font-size: 20px;
         }
         .center {
             text-align: center;
@@ -59,6 +59,14 @@
         .subHeader {
             text-align:right;
         }
+        .axis text {
+            font-size: 10pt;
+
+        }
+        .axisLabel {
+            font-size: 10pt;
+        }
+        
     </style>
 </head>
 <body>
@@ -86,8 +94,14 @@
     <p class="rank"></p>
     <p class="score"></p>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.js"></script>
-<script src="libs/main.js"></script>
+
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="/main.js"></script>
+<script>
+    
+
+
+</script>
 </body>
 </html>
