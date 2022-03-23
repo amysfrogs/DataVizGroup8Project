@@ -1,6 +1,20 @@
 var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
     height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
+$('#yearSelector').on('change', function (i) {
+    selectedYear = $('#yearSelector').find(":selected").text();
+
+    Promise.all([
+        d3.json("http://localhost:5000/data/worldMap"),
+        d3.csv("http://127.0.0.1:5000/data/facts/year/" + selectedYear)
+    ]).then(d => {
+        const world = d[0];
+        const data = d[1];
+        drawMap(world, data);      
+    })
+})
+    
+
 var svg = d3.select("body")
     .append("svg")
     .style("cursor", "move");
@@ -14,7 +28,7 @@ var zoom = d3.zoom()
         map.attr("transform", transform);
     });
 
-var selectedYear = "2018";  
+var selectedYear = $('#yearSelector').find(":selected").text();  
 var selectedTopN = 1000;    
 
 svg.call(zoom);
@@ -23,15 +37,13 @@ var map = svg.append("g")
     .attr("class", "map");
 
 Promise.all([
-        d3.json("./data/50m.json"),
-        d3.csv("./data/ConsolidatedHappiness.csv")
-    ]).then(d => {
-        const world = d[0];
-        const data = d[1];
-
-
-        drawMap(world, data);      
-    })
+    d3.json("http://localhost:5000/data/worldMap"),
+    d3.csv("http://127.0.0.1:5000/data/facts/year/" + selectedYear)
+]).then(d => {
+    const world = d[0];
+    const data = d[1];
+    drawMap(world, data);      
+})
 
 function drawMap(world, data) {
     // geoMercator projection
@@ -53,7 +65,7 @@ function drawMap(world, data) {
         if(d.Year === selectedYear) {
 
             if(d['Happiness rank'] <= selectedTopN) {
-                details[d['Country or region']] = {
+                details[d['Country']] = {
                     rank: +d['Happiness rank'],
                     score: +d['Score']
                 }
@@ -80,8 +92,6 @@ function drawMap(world, data) {
     features.forEach(function (d) {
         d.details = details[d.properties.name] ? details[d.properties.name] : {};
     });
-
-
 
     map.append("g")
         .attr('class', 'basemap')
@@ -132,17 +142,15 @@ function drawMap(world, data) {
     $('#topNSlider').slider({
         tooltip: 'always'
     });
-
+    
     $('#topNSlider').on('change', function (d) {
         selectedTopN = d.value.newValue;
         drawMap(world, data);
     })
-
-    $('#yearSelector').on('change', function (i) {
-        selectedYear = $('#yearSelector').find(":selected").text();
-        drawMap(world, data);
-    })
 }
+
+
+
 //line chart of Happiness Score vs Crime Data for selected Country
 const margin = {top: 20, left: 30, right: 30, bottom: 30}
 const dualAxisWidth = (width / 2) - (margin.left + margin.right) ;
@@ -156,8 +164,8 @@ const dualAxis = d3.select('body')
     .append('g')
         .attr('transform', 'translate(' + margin.left + "," + margin.top + ")");
 //file paths for data
-const Happiness = "../data/ConsolidatedHappiness.csv"
-const Crime = "../data/IntentionalHomicidesFormatted.csv"
+const Happiness = "./data/ConsolidatedHappiness.csv"
+const Crime = "./data/IntentionalHomicidesFormatted.csv"
 //open files
 Promise.all([
     d3.csv(Happiness),

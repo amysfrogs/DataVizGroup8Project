@@ -1,0 +1,4 @@
+/PythonBackend/.idea
+/PythonBackend/src/__pycache__
+/PythonBackend/data/IntentionalHomicidesFormatted.csv
+/PythonBackend/data/ConsolidatedHappinessWithHomicideData.csv
