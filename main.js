@@ -49,7 +49,6 @@ function drawMap(world, data) {
     var minRank = 0;
     var maxRank = 0;
 
-    console.log(features)
 
     data.forEach(function (d) {
         if(d.Year === selectedYear) {
@@ -83,8 +82,6 @@ function drawMap(world, data) {
         d.details = details[d.properties.name] ? details[d.properties.name] : {};
     });
 
-    console.log(details)
-
     map.append("g")
         .attr('class', 'basemap')
         .selectAll("path")
@@ -110,7 +107,7 @@ function drawMap(world, data) {
                 .style("cursor", "pointer");
 
             d3.select(".country")
-                .text(d.name);
+                .text(d.properties.name);
 
             d3.select(".rank")
                 .text(d.details && d.details.rank && "Rank " + d.details.rank || "Rank: -");
@@ -198,13 +195,13 @@ Promise.all([
     let selectedHappinessDataYear = happiness_data.filter(function (a) {return (a['Year'] === +selectedYear && a['Country'] === selectedCountry)});
 
     const barColumns = ['GDP per Capita', 'Social Suport Index', 'Healthy Life Expectancy', 'Freedom Index', 'Generosity Index', 'Corruption Index', 'Crime Rate per 100K']
-    barData = {}
-    for (var i = 0; i < selectedHappinessDataYear.length; i++) {
-
-    }
+    barData = [selectedHappinessDataYear[0]['GDP per capita']]
+    
+    selectedHappinessDataYear.forEach
     
     console.log(selectedHappinessDataYear)
     console.log(barColumns)
+    console.log(barData)
     
     //find min and max for use with scales
     const year_min_max = d3.extent(happiness_data, d => +d.Year)
@@ -330,6 +327,7 @@ Promise.all([
         .domain(xMinMax)
         .range([margin.left, `${dualAxisWidth}` - margin.right]);
     const yBarScale = d3.scaleLinear()
+        //do we need a domain?
         .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
     //add axis generators
     const xBarAxis = d3.axisBottom().scale(xBarScale);
