@@ -1,5 +1,5 @@
-var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
-    height = Math.max(document.documentElement.clientHeight - 130, window.innerHeight - 130 || 0);
+var width = Math.max(document.documentElement.clientWidth-200, window.innerWidth-200 || 0),
+    height = Math.max(document.documentElement.clientHeight+200, window.innerHeight || 0);
 
 $('#yearSelector').on('change', function (i) {
     selectedYear = $('#yearSelector').find(":selected").text();
@@ -48,7 +48,7 @@ Promise.all([
 function drawMap(world, data) {
     // geoMercator projection
     var projection = d3.geoMercator() //d3.geoOrthographic()
-        .scale(130)
+        .scale(250)
         .translate([width / 2, height / 1.5]);
 
     // geoPath projection
@@ -135,9 +135,10 @@ function drawMap(world, data) {
                 d3.csv(HappinessUrl),
                 d3.csv(HappinessCurrentYearUrl)
             ]).then(data => {
+                populateSelectedCountryDiv(selectedCountry, data[1][0]['Happiness rank'])
                 drawDualAxisLineChart(data[0], selectedCountry);
-                //drawBarChart(data[1], selectedCountry);
-                drawBarChart2(data[1], selectedCountry);
+                drawBarChart(data[1], selectedCountry);
+                drawSingleAxisLineChart(data[0], selectedCountry);
             })
         });
 
@@ -152,21 +153,39 @@ function drawMap(world, data) {
     })
 }
 
+function populateSelectedCountryDiv(selectedCountry, rank) {
+    d3.select('#selCountry').html("<div class=\"selCon\">Selected Country: <strong>" + selectedCountry + 
+    "</strong> Happiness Rank: <strong>" + rank + "</strong>" +
+    "<div>");
+}
+
 function drawDualAxisLineChart(data, selectedCountry) {
     d3.select('#dualAxisLC').html("");
-    d3.select('#dualAxisLC').html("<h5>Selected Country: <strong>" + selectedCountry + "</strong><h5>");
 
-    const margin = { top: 20, left: 30, right: 30, bottom: 30 }
-    const dualAxisWidth = (width / 2) - (margin.left + margin.right);
-    const dualAxisHeight = (height / 2) - (margin.top + margin.bottom);
+    var margin = { top: 50, right: 10, bottom: 5, left: 50 },
+        svgWidth = 500, svgHeight = 270,
+        dualAxisWidth = svgWidth - margin.left - margin.right,
+        dualAxisHeight = svgHeight - margin.top - margin.bottom;
 
     //SVG for dualAxis graph
-    const dualAxis = d3.select('#dualAxisLC')
-        .append('svg')
-        .attr('width', dualAxisWidth + margin.left + margin.right)
-        .attr('height', dualAxisHeight + margin.top + margin.bottom)
+    const svg =  d3.select('#dualAxisLC')
+    .append('svg')
+    //.attr('width', dualAxisWidth)
+    //.attr('height', dualAxisHeight)
+    .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+
+    const dualAxis = svg
         .append('g')
-        .attr('transform', 'translate(' + margin.left + "," + margin.top + ")");
+        .attr('transform', 'translate(' + 0 + "," + 0 + ")")
+        
+        ;
+
+    svg.append('text')
+        .attr('x', svgWidth / 2)
+        .attr('y', 30)
+        .attr('text-anchor', 'middle')
+        .attr('font-weight', 'bold')
+        .text('Crime Rate vs. Happiness Rank of ' + selectedCountry + ' accross Years')
 
     const happiness_data = data;
     //convert column formats for happiness data
@@ -197,58 +216,68 @@ function drawDualAxisLineChart(data, selectedCountry) {
     const xScale = d3.scaleLinear()
         .domain(year_min_max)
         .range([margin.left, `${dualAxisWidth}` - margin.right]);
+
     const y1Scale = d3.scaleLinear()
         .domain(crime_min_max)
         .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
+        
     const y2Scale = d3.scaleLinear()
         .domain(happiness_min_max)
         .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
+
     //add axis generators
-    const xAxis = d3.axisBottom().scale(xScale).ticks(5).tickFormat(d3.format("d"));
+    const xAxis = d3.axisTop().scale(xScale).ticks(5).tickFormat(d3.format("d"));
     const y1Axis = d3.axisLeft().scale(y1Scale);
     const y2Axis = d3.axisRight().scale(y2Scale);
+
     //append x axis
     dualAxis.append('g')
         .attr('class', 'axis')
-        .attr('transform', "translate(0," + y2Scale(0) + ")")
+        .attr('transform', "translate(0," + y1Scale(0) + ")")
         .call(xAxis)
         .selectAll('text')
         .style('text-anchor', 'end')
-        .attr('dx', '-0.8em')
-        .attr('dy', '0.15em')
-        .attr('transform', 'rotate(-65)')
+        .attr('dx', '1em')
+        .attr('dy', '2em')
+        //.attr('transform', 'rotate(-65)')
+
     //append y1 axis
     dualAxis.append('g')
         .attr('class', 'axis')
         .attr('transform', `translate(${margin.left}, 0)`)
         .call(y1Axis)
+
     //append y2 axis
     const y2AxisShift = dualAxisWidth - margin.right
     dualAxis.append('g')
         .attr('class', 'axis')
         .attr('transform', 'translate(' + y2AxisShift + ', 0)')
         .call(y2Axis)
+
     //add axis labels
     dualAxis.append('text')
         .attr('class', 'axisLabel')
         .attr('text-anchor', 'end')
-        .attr('x', dualAxisWidth / 2)
-        .attr('y', dualAxisHeight + margin.top + 10)
+        .attr('x', (dualAxisWidth+margin.left) / 2)
+        .attr('y', dualAxisHeight+30)
         .text('Year')
+        
     dualAxis.append('text')
         .attr('class', 'axisLabel')
         .attr('text-anchor', 'end')
         .attr('transform', 'rotate(-90)')
         .attr('x', -((dualAxisHeight - margin.bottom) / 2))
-        .attr('y', -margin.left + 20)
+        .attr('y', 10)
         .text('Crime Rate')
+
     dualAxis.append('text')
         .attr('class', 'axisLabel')
         .attr('text-anchor', 'end')
         .attr('transform', 'rotate(-90)')
         .attr('x', -((dualAxisHeight - margin.bottom - margin.top) / 2) + 20)
-        .attr('y', (margin.left + y2AxisShift) + 25)
+        .attr('y', (margin.left + y2AxisShift) + 15)
         .text('Happiness Rank')
+
     //line generator for crime
     const lineGenCrime = d3.line()
         .x(d => xScale(d.Year))
@@ -266,7 +295,7 @@ function drawDualAxisLineChart(data, selectedCountry) {
         .append('path')
         .attr('d', d => lineGenCrime(d))
         .attr('fill', 'none')
-        .attr('stroke', 'red')
+        .attr('stroke', '#ee6666')
         .attr('stroke-width', 2)
     //Bind data and add path elements for happiness data
     const lineChartHappy = dualAxis.append('g')
@@ -277,189 +306,73 @@ function drawDualAxisLineChart(data, selectedCountry) {
         .append('path')
         .attr('d', d => lineGenHappy(d))
         .attr('fill', 'none')
-        .attr('stroke', 'steelblue')
+        .attr('stroke', '#5470c6')
         .attr('stroke-width', 2);
 
 }
 
 function drawBarChart(data, selectedCountry) {
-    d3.select('#barChart').html("");
-    //Charts for Happiness Score vs Crime Data for selected Country
-    //constants for margins and widths for different charts
-    const margin = { top: 20, left: 30, right: 30, bottom: 30 }
-    const dualAxisWidth = (width / 2) - (margin.left + margin.right);
-    const dualAxisHeight = (height / 2) - (margin.top + margin.bottom);
-    const chartWidth = (width / 2) - (margin.left + margin.right);
-    const chartHeight = (height / 2) - (margin.top + margin.bottom);
-
-    //SVG for bar chart
-    const barChart = d3.select('#barChart')
-        .append('svg')
-        .attr('width', chartWidth + margin.left + margin.right)
-        .attr('height', chartHeight + margin.top + margin.bottom)
-        .append('g')
-        .attr('transform', 'translate(' + margin.left + "," + margin.top + ")");
-
-    const happiness_data = data;
-    //convert column formats for happiness data
-    happiness_data.forEach(d => {
-        d['Country'] = d['Country']
-        d.Year = +d.Year;
-        d['HappinessRank'] = +d['Happiness rank']
-        d.Score = +d.Score
-        d['GDP per capita'] = +d['GDP per capita']
-        d['Social support Index'] = +d['Social support Index']
-        d['Healthy life expectancy'] = +d['Healthy life expectancy']
-        d['Freedom Index'] = +d['Freedom Index']
-        d['Generosity Index'] = +d['Generosity Index']
-        d['Corruption Index'] = +d['Corruption Index']
-        d['NumberOfHomicides'] = +d['NumberOfHomicides']
-        d['RateOfHomicides'] = +d['RateOfHomicides']
-    })
-
-
-    let selectedHappinessDataYear = happiness_data.filter(function (a) { return (a['Year'] === +selectedYear && a['Country'] === selectedCountry) });
-
-    const barColumns = ['GDP per Capita', 'Social Suport Index', 'Healthy Life Expectancy', 'Freedom Index', 'Generosity Index', 'Corruption Index', 'Crime Rate per 100K']
-    barData = {}
-    for (var i = 0; i < selectedHappinessDataYear.length; i++) {
-
-    }
-    //find min and max for use with scales
-    const year_min_max = d3.extent(happiness_data, d => +d.Year)
-    const crime_max = d3.max(happiness_data, d => +d.RateOfHomicides)
-    const crime_min_max = [0, +crime_max]
-    const happiness_min_max = d3.extent(happiness_data, d => +d.HappinessRank)
-
-    //add scales
-    const xScale = d3.scaleLinear()
-        .domain(year_min_max)
-        .range([margin.left, `${dualAxisWidth}` - margin.right]);
-    const y1Scale = d3.scaleLinear()
-        .domain(crime_min_max)
-        .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
-    const y2Scale = d3.scaleLinear()
-        .domain(happiness_min_max)
-        .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
-    //add axis generators
-    const xAxis = d3.axisBottom().scale(xScale).ticks(5).tickFormat(d3.format("d"));
-    const y1Axis = d3.axisLeft().scale(y1Scale);
-    const y2Axis = d3.axisRight().scale(y2Scale);
-
-    //bar chart
-    //find min and max vals for use in scales
-    const xMax = d3.max(happiness_data, function (d) {
-        return (Math.max(
-            d['GDP per capita'],
-            d['Social support Index'],
-            d['Healthy life expectancy'],
-            d['Freedom Index'],
-            d['Generosity Index'],
-            d['Corruption Index'],
-            d['RateOfHomicides']
-        ))
-    })
-    const xMin = d3.min(happiness_data, function (d) {
-        return (Math.min(
-            d['GDP per capita'],
-            d['Social support Index'],
-            d['Healthy life expectancy'],
-            d['Freedom Index'],
-            d['Generosity Index'],
-            d['Corruption Index'],
-            d['RateOfHomicides']
-        ))
-    })
-    const xMinMax = [xMin, xMax]
-
-    //create scales
-    const xBarScale = d3.scaleLinear()
-        .domain(xMinMax)
-        .range([margin.left, `${dualAxisWidth}` - margin.right]);
-    const yBarScale = d3.scaleLinear()
-        .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
-    //add axis generators
-    const xBarAxis = d3.axisBottom().scale(xBarScale);
-    const yBarAxis = d3.axisLeft().scale(yBarScale).tickFormat('').tickSize(0);
-    //add x axis
-    barChart.append('g')
-        .attr('class', 'axis')
-        .attr('transform', "translate(0," + yBarScale(0) + ")")
-        .call(xBarAxis)
-        .selectAll('text')
-        .style('text-anchor', 'end')
-        .attr('dx', '-0.8em')
-        .attr('dy', '0.15em')
-        .attr('transform', 'rotate(-65)')
-    //append y axis
-    barChart.append('g')
-        .attr('class', 'axis')
-        .attr('transform', `translate(${margin.left}, 0)`)
-        .call(yBarAxis)
-    //add x axis label
-    barChart.append('text')
-        .attr('class', 'axisLabel')
-        .attr('text-anchor', 'end')
-        .attr('x', dualAxisWidth / 2)
-        .attr('y', dualAxisHeight + margin.top + 10)
-        .text('Value')
-
-    //bars
-    barChart.selectAll('myRect')
-        .data([barData])
-        .enter()
-        .append('rect')
-        .attr('x', xBarScale(0))
-        .attr('y', function (d) { return selectedHappinessDataYear.keys.length })
-        .attr('width')
-}
-
-function drawBarChart2(data, selectedCountry) {
 
     d3.select('#barChart').html("");
 
     const barColumns = ['GDP per capita', 'Social support Index', 'Healthy life expectancy', 
     'Freedom Index', 'Generosity Index', 'Corruption Index', 'RateOfHomicides']
 
+    const barColors = ['#5470c6', '#91cc75', '#fac858', '#73c0de', '#fc8452', '#9a60b4', '#ee6666']
+
     const barChartData = [];
+    let xMax = 0;
     
     for( idx in barColumns) {
         obj = {}
         obj[barColumns[idx]] = data[0][barColumns[idx]];
+        obj['color'] = barColors[idx];
         barChartData.push(obj);
+
+        if(data[0][barColumns[idx]] > xMax) {
+            xMax = data[0][barColumns[idx]];
+        }
     }
 
-    //console.log(barChartData)
-
-    var margin = { top: 20, right: 30, bottom: 40, left: 90 },
-        width = 460 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+    var margin = { top: 30, right: 30, bottom: 20, left: 120 },
+        svgWidth = 500, svgHeight = 150,
+        width = svgWidth - margin.left - margin.right,
+        height = svgHeight - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     var svg = d3.select("#barChart")
         .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        //.attr("width", width + margin.left + margin.right)
+        //.attr("height", height + margin.top + margin.bottom)
+        .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight)
         .append("g")
         .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
     // Add X axis
     var x = d3.scaleLinear()
-        .domain([0, 2])
+        .domain([0, xMax])
         .range([0, width]);
+
     svg.append("g")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x))
         .selectAll("text")
         .attr("transform", "translate(-10,0)rotate(-45)")
         .style("text-anchor", "end");
+    
+    svg.append('text')
+        .attr('x', svgWidth / 2-100)
+        .attr('y', -20)
+        .attr('text-anchor', 'middle')
+        .attr('font-weight', 'bold')
+        .text('Various Indices of ' + selectedCountry + ' with Happiness Rank of ' + data[0]['Happiness rank'] + ' for Year: ' + selectedYear)
 
     // Y axis
     var y = d3.scaleBand()
         .range([0, height])
         .domain(barColumns.map(d => d))
-        .padding(.1);
+        .padding(.4);
     svg.append("g")
         .call(d3.axisLeft(y))
 
@@ -472,6 +385,54 @@ function drawBarChart2(data, selectedCountry) {
         .attr("y", d => y(Object.keys(d)[0]))
         .attr("width", d => x(d[Object.keys(d)[0]]))
         .attr("height", y.bandwidth())
-        .attr("fill", "#69b3a2")
+        .attr("fill", d => d.color)
+        .on('mouseenter', function (actual, i) {
+            d3.select(this).attr('opacity', 0.5)
+        })
+        .on('mouseleave', function (actual, i) {
+            d3.select(this).attr('opacity', 1)
+        })
 
+}
+
+function drawSingleAxisLineChart(data, selectedCountry) {
+    d3.select('#singleAxisLC').html("");
+
+    var margin = { top: 50, right: 10, bottom: 5, left: 50 },
+        svgWidth = 500, svgHeight = 270,
+        singleAxisWidth = svgWidth - margin.left - margin.right,
+        singleAxisHeight = svgHeight - margin.top - margin.bottom;
+
+    //SVG for singleAxis graph
+    const svg =  d3.select('#singleAxisLC')
+    .append('svg')
+    .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+
+    const singleAxis = svg
+        .append('g')
+        .attr('transform', 'translate(' + 0 + "," + 0 + ")") ;
+
+    svg.append('text')
+        .attr('x', svgWidth / 2)
+        .attr('y', 30)
+        .attr('text-anchor', 'middle')
+        .attr('font-weight', 'bold')
+        .text('Various Indices of ' + selectedCountry + ' accross Years')
+
+    
+    console.log(data)
+    // Add X axis 
+    var x = d3.scaleLinear()
+    .domain(d3.extent(data, function(d) { return d.Year; }))
+    .range([ 0, singleAxisWidth ]);
+  svg.append("g")
+    .attr("transform", "translate(0," + singleAxisHeight + ")")
+    .call(d3.axisBottom(x).ticks(5));
+
+    // Add Y axis
+  var y = d3.scaleLinear()
+  .domain([0, d3.max(data, function(d) {console.log(d); return +d.n; })])
+  .range([ height, 0 ]);
+svg.append("g")
+  .call(d3.axisLeft(y));
 }
