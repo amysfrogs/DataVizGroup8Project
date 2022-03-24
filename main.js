@@ -192,17 +192,17 @@ Promise.all([
     let selectedCountry = 'Colombia'
     let selectedHappinessData = happiness_data.filter(function (a) {return a['Country'] === selectedCountry;});
     
+    //create array for barChart
     let selectedHappinessDataYear = happiness_data.filter(function (a) {return (a['Year'] === +selectedYear && a['Country'] === selectedCountry)});
-
     const barColumns = ['GDP per Capita', 'Social Suport Index', 'Healthy Life Expectancy', 'Freedom Index', 'Generosity Index', 'Corruption Index', 'Crime Rate per 100K']
-    barData = [selectedHappinessDataYear[0]['GDP per capita']]
-    
-    selectedHappinessDataYear.forEach
-    
-    console.log(selectedHappinessDataYear)
-    console.log(barColumns)
-    console.log(barData)
-    
+    const barVals = [selectedHappinessDataYear[0]['GDP per capita'], selectedHappinessDataYear[0]['Social support Index'], selectedHappinessDataYear[0]['Healthy life expectancy'],
+            selectedHappinessDataYear[0]['Freedom Index'], selectedHappinessDataYear[0]['Generosity Index'], selectedHappinessDataYear[0]['Corruption Index'],
+            selectedHappinessDataYear[0]['RateOfHomicides']]
+    const barData = {};
+    for(i = 0; i < barVals.length; i++) {
+        barData[i] = {name: barColumns[i], value: barVals[i]}
+    }
+
     //find min and max for use with scales
     const year_min_max = d3.extent(happiness_data, d => +d.Year)
     const crime_max = d3.max(happiness_data, d => +d.RateOfHomicides)
@@ -326,8 +326,8 @@ Promise.all([
     const xBarScale = d3.scaleLinear()
         .domain(xMinMax)
         .range([margin.left, `${dualAxisWidth}` - margin.right]);
-    const yBarScale = d3.scaleLinear()
-        //do we need a domain?
+    const yBarScale = d3.scaleBand()
+        .domain([barData.name])
         .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
     //add axis generators
     const xBarAxis = d3.axisBottom().scale(xBarScale);
@@ -356,14 +356,21 @@ Promise.all([
         .text('Value')
 
     //bars
-    barChart.selectAll('myRect')
-        .data([barData])
+    const barWidth = 50;
+    barChart.selectAll('.rects')
+        .data(barData)
         .enter()
         .append('rect')
         .attr('x', xBarScale(0))
-        .attr('y', function (d) {return selectedHappinessDataYear.keys.length})
-        .attr('width')
-        
+        //.attr('x', d => xBarScale(d.value) + xBarScale.bandwidth()/2 - barWidth/2)
+        .attr('y', d => yBarScale(d.name))
+        .attr('width', barWidth)
+        .attr('height', d => chartHeight - margin.bottom - yBarScale(d.name))
+        .attr('fill', '#fefefe')
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', 0.8)
+
+    
     
     
     
