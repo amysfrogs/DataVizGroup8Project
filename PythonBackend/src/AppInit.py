@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_restful import Api
 import DataBroker as db
 from DataInit import DataInit
 
