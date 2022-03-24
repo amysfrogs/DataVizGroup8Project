@@ -1,4 +1,5 @@
-from flask import Flask
+import flask
+from flask import Flask, render_template
 import DataBroker as db
 from DataInit import DataInit
 
@@ -7,6 +8,11 @@ app = Flask(__name__)
 data_init = DataInit()
 data_init.generate_pivoted_homicide_data()
 data_init.consolidate_happiness_data_with_homicide_data()
+
+
+@app.route('/')
+def get_index():
+    return render_template("index.html")
 
 
 @app.route('/data/worldMap')

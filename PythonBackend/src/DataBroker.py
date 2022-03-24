@@ -18,8 +18,7 @@ class DataBroker(Resource):
         f = open(self.country_data, 'r')
         return Response(
             f.read(),
-            mimetype="application/json",
-            headers={"Access-Control-Allow-Origin": "http://127.0.0.1:5500"}
+            mimetype="application/json"
         )
 
     def get_data(self):
@@ -28,8 +27,7 @@ class DataBroker(Resource):
             bytes(df[self.columns]
                   .to_csv(sep=',', encoding='utf-8', index=False), encoding='UTF-8'),
             mimetype="text/csv",
-            headers={"Content-Disposition": "inline;filename=data.csv",
-                     "Access-Control-Allow-Origin": "http://127.0.0.1:5500"}
+            headers={"Content-Disposition": "inline;filename=data.csv"}
         )
 
     def get_data_by_year(self, year):
@@ -38,8 +36,7 @@ class DataBroker(Resource):
             bytes(df[df.Year == int(year)][self.columns]
                   .to_csv(sep=',', encoding='utf-8', index=False), encoding='UTF-8'),
             mimetype="text/csv",
-            headers={"Content-Disposition": "inline;filename=data.csv",
-                     "Access-Control-Allow-Origin": "http://127.0.0.1:5500"}
+            headers={"Content-Disposition": "inline;filename=data.csv"}
         )
 
     def get_data_by_country(self, country):
@@ -48,8 +45,7 @@ class DataBroker(Resource):
             bytes(df[df.Country == country][self.columns]
                   .to_csv(sep=',', encoding='utf-8', index=False), encoding='UTF-8'),
             mimetype="text/csv",
-            headers={"Content-Disposition": "inline;filename=data.csv",
-                     "Access-Control-Allow-Origin": "http://127.0.0.1:5500"}
+            headers={"Content-Disposition": "inline;filename=data.csv"}
         )
 
     def get_data_by_year_and_country(self, year, country):
@@ -58,6 +54,5 @@ class DataBroker(Resource):
             bytes(df[df.Year == int(year)][df.Country == country][self.columns]
                   .to_csv(sep=',', encoding='utf-8', index=False), encoding='UTF-8'),
             mimetype="text/csv",
-            headers={"Content-Disposition": "inline;filename=data.csv",
-                     "Access-Control-Allow-Origin": "http://127.0.0.1:5500"}
+            headers={"Content-Disposition": "inline;filename=data.csv"}
         )
