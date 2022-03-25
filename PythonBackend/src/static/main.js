@@ -404,13 +404,13 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         singleAxisHeight = svgHeight - margin.top - margin.bottom;
 
     //SVG for singleAxis graph
-    const svg =  d3.select('#singleAxisLC')
-    .append('svg')
-    .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+    const svg = d3.select('#singleAxisLC')
+        .append('svg')
+        .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
 
     const singleAxis = svg
         .append('g')
-        .attr('transform', 'translate(' + 0 + "," + 0 + ")") ;
+        .attr('transform', 'translate(' + 0 + "," + 0 + ")");
 
     svg.append('text')
         .attr('x', svgWidth / 2)
@@ -419,20 +419,20 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('font-weight', 'bold')
         .text('Various Indices of ' + selectedCountry + ' accross Years')
 
-    
+
     console.log(data)
     // Add X axis 
     var x = d3.scaleLinear()
-    .domain(d3.extent(data, function(d) { return d.Year; }))
-    .range([ 0, singleAxisWidth ]);
-  svg.append("g")
-    .attr("transform", "translate(0," + singleAxisHeight + ")")
-    .call(d3.axisBottom(x).ticks(5));
+        .domain(d3.extent(data, function (d) { return d.Year; }))
+        .range([0, singleAxisWidth]);
+    svg.append("g")
+        .attr("transform", "translate(0," + singleAxisHeight + ")")
+        .call(d3.axisBottom(x).ticks(5));
 
     // Add Y axis
-  var y = d3.scaleLinear()
-  .domain([0, d3.max(data, function(d) {console.log(d); return +d.n; })])
-  .range([ height, 0 ]);
-svg.append("g")
-  .call(d3.axisLeft(y));
+    var y = d3.scaleLinear()
+        .domain([0, d3.max(data, function (d) { console.log(d); return +d.n; })])
+        .range([height, 0]);
+    svg.append("g")
+        .call(d3.axisLeft(y));
 }
