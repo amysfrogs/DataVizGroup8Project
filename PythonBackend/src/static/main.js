@@ -404,13 +404,13 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         singleAxisHeight = svgHeight - margin.top - margin.bottom;
 
     //SVG for singleAxis graph
-    const svg =  d3.select('#singleAxisLC')
-    .append('svg')
-    .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+    const svg = d3.select('#singleAxisLC')
+        .append('svg')
+        .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
 
     const singleAxis = svg
         .append('g')
-        .attr('transform', 'translate(' + 0 + "," + 0 + ")") ;
+        .attr('transform', 'translate(' + 0 + "," + 0 + ")");
 
     svg.append('text')
         .attr('x', svgWidth / 2)
