@@ -397,6 +397,22 @@ function drawBarChart(data, selectedCountry) {
 
 function drawSingleAxisLineChart(data, selectedCountry) {
     d3.select('#singleAxisLC').html("");
+    console.log(data)
+    data.forEach(d => {
+        d['Country'] = d['Country']
+        d.Year = +d.Year;
+        d['HappinessRank'] = +d['Happiness rank']
+        d.Score = +d.Score
+        d['GDP per capita'] = +d['GDP per capita']
+        d['Social support Index'] = +d['Social support Index']
+        d['Healthy life expectancy'] = +d['Healthy life expectancy']
+        d['Freedom Index'] = +d['Freedom Index']
+        d['Generosity Index'] = +d['Generosity Index']
+        d['Corruption Index'] = +d['Corruption Index']
+        d['NumberOfHomicides'] = +d['NumberOfHomicides']
+        d['RateOfHomicides'] = +d['RateOfHomicides']
+    })
+    console.log(data)
 
     var margin = { top: 50, right: 10, bottom: 5, left: 50 },
         svgWidth = 500, svgHeight = 270,
@@ -501,7 +517,7 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .data(data)
         .enter()
         .append('path')
-        .attr('d', d => lineGenGDP(d))
+        .attr('d', d => lineGenGDP(+d))
         .attr('fill', 'none')
         .attr('stroke', '#5470c6')
         .attr('stroke-width', 2)
