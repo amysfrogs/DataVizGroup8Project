@@ -421,7 +421,7 @@ function drawSingleAxisLineChart(data, selectedCountry) {
 
     //find min and max for use with scales
     const year_min_max = d3.extent(data, d => +d.Year)
-    const vals_max = const xMax = d3.max(data, function (d) {
+    const vals_max = d3.max(data, function (d) {
         return (Math.max(
             d['GDP per capita'],
             d['Social support Index'],
@@ -483,7 +483,7 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .y(d => yScale(d['Healthy life expectancy']))
     const lineGenFree = d3.line()
         .x(d => xScale(d.Year))
-        .y(d => yScale(d['Freedom Index'']))
+        .y(d => yScale(d['Freedom Index']))
     const lineGenGen = d3.line()
         .x(d => xScale(d.Year))
         .y(d => yScale(d['Generosity Index']))
