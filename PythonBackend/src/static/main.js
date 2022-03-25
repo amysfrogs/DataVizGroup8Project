@@ -185,7 +185,7 @@ function drawDualAxisLineChart(data, selectedCountry) {
         .attr('y', 30)
         .attr('text-anchor', 'middle')
         .attr('font-weight', 'bold')
-        .text('Crime Rate vs. Happiness Rank of ' + selectedCountry + ' accross Years')
+        .text('Homicide Rate vs. Happiness Rank of ' + selectedCountry + ' across Years')
 
     const happiness_data = data;
     //convert column formats for happiness data
@@ -417,22 +417,172 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('y', 30)
         .attr('text-anchor', 'middle')
         .attr('font-weight', 'bold')
-        .text('Various Indices of ' + selectedCountry + ' accross Years')
+        .text('Various Indices of ' + selectedCountry + ' across Years')
+
+    //find min and max for use with scales
+    const year_min_max = d3.extent(data, d => +d.Year)
+    const vals_max = const xMax = d3.max(data, function (d) {
+        return (Math.max(
+            d['GDP per capita'],
+            d['Social support Index'],
+            d['Healthy life expectancy'],
+            d['Freedom Index'],
+            d['Generosity Index'],
+            d['Corruption Index'],
+            d['RateOfHomicides']
+        ))
+    })
+    const vals_min_max = [0, vals_max]
+
+    //add scales
+    const xScale = d3.scaleLinear()
+        .domain(year_min_max)
+        .range([margin.left, `${singleAxisWidth}` - margin.right]);
+
+    const yScale = d3.scaleLinear()
+        .domain(vals_min_max)
+        .range([`${singleAxisHeight}` - margin.bottom, margin.top]);
+
+    //add axis generators
+    const xAxis = d3.axisTop().scale(xScale).ticks(5).tickFormat(d3.format("d"));
+    const yAxis = d3.axisLeft().scale(yScale);
+
+    //append x axis
+    svg.append('g')
+        .attr('class', 'axis')
+        .attr('transform', "translate(0," + yScale(0) + ")")
+        .call(xAxis)
+        .selectAll('text')
+        .style('text-anchor', 'end')
+        .attr('dx', '1em')
+        .attr('dy', '2em')
+
+    //append y axis
+    svg.append('g')
+        .attr('class', 'axis')
+        .attr('transform', `translate(${margin.left}, 0)`)
+        .call(yAxis)
+
+    //add axis labels for x
+    svg.append('text')
+        .attr('class', 'axisLabel')
+        .attr('text-anchor', 'end')
+        .attr('x', (singleAxisWidth+margin.left) / 2)
+        .attr('y', singleAxisHeight+30)
+        .text('Year')
+
+    //line generators
+    const lineGenGDP = d3.line()
+        .x(d => xScale(d.Year))
+        .y(d => yScale(d['GDP per capita']))
+    const lineGenSocial = d3.line()
+        .x(d => xScale(d.Year))
+        .y(d => yScale(d['Social support Index']))
+    const lineGenHealth = d3.line()
+        .x(d => xScale(d.Year))
+        .y(d => yScale(d['Healthy life expectancy']))
+    const lineGenFree = d3.line()
+        .x(d => xScale(d.Year))
+        .y(d => yScale(d['Freedom Index'']))
+    const lineGenGen = d3.line()
+        .x(d => xScale(d.Year))
+        .y(d => yScale(d['Generosity Index']))
+    const lineGenCorr = d3.line()
+        .x(d => xScale(d.Year))
+        .y(d => yScale(d['Corruption Index']))
+    const lineGenCrime = d3.line()
+        .x(d => xScale(d.Year))
+        .y(d => yScale(d['RateOfHomicides']))
+
+    //Bind data and add path elements for each line
+    const lineChartGDP = svg.append('g')
+        .attr('class', 'GDPLine')
+        .selectAll('lines')
+        .data(data)
+        .enter()
+        .append('path')
+        .attr('d', d => lineGenGDP(d))
+        .attr('fill', 'none')
+        .attr('stroke', '#5470c6')
+        .attr('stroke-width', 2)
+    const lineChartSocial = svg.append('g')
+        .attr('class', 'SocialLine')
+        .selectAll('lines')
+        .data(data)
+        .enter()
+        .append('path')
+        .attr('d', d => lineGenSocial(d))
+        .attr('fill', 'none')
+        .attr('stroke', '#91cc75')
+        .attr('stroke-width', 2)
+    const lineChartHealth = svg.append('g')
+        .attr('class', 'HealthLine')
+        .selectAll('lines')
+        .data(data)
+        .enter()
+        .append('path')
+        .attr('d', d => lineGenHealth(d))
+        .attr('fill', 'none')
+        .attr('stroke', '#fac858')
+        .attr('stroke-width', 2)
+    const lineChartFree = svg.append('g')
+        .attr('class', 'FreeLine')
+        .selectAll('lines')
+        .data(data)
+        .enter()
+        .append('path')
+        .attr('d', d => lineGenFree(d))
+        .attr('fill', 'none')
+        .attr('stroke', '#73c0de')
+        .attr('stroke-width', 2)
+    const lineChartGen = svg.append('g')
+        .attr('class', 'GenLine')
+        .selectAll('lines')
+        .data(data)
+        .enter()
+        .append('path')
+        .attr('d', d => lineGenGen(d))
+        .attr('fill', 'none')
+        .attr('stroke', '#fc8452')
+        .attr('stroke-width', 2)
+    const lineChartCorr = svg.append('g')
+        .attr('class', 'CorrLine')
+        .selectAll('lines')
+        .data(data)
+        .enter()
+        .append('path')
+        .attr('d', d => lineGenCorr(d))
+        .attr('fill', 'none')
+        .attr('stroke', '#9a60b4')
+        .attr('stroke-width', 2)
+    const lineChartCrime = svg.append('g')
+        .attr('class', 'CrimeLine')
+        .selectAll('lines')
+        .data(data)
+        .enter()
+        .append('path')
+        .attr('d', d => lineGenCrime(d))
+        .attr('fill', 'none')
+        .attr('stroke', '#ee6666')
+        .attr('stroke-width', 2)
+
 
     
-    console.log(data)
+    /*console.log(data)
     // Add X axis 
     var x = d3.scaleLinear()
-    .domain(d3.extent(data, function(d) { return d.Year; }))
+    .domain(d3.extent(data, function(d) { return +d.Year; }))
     .range([ 0, singleAxisWidth ]);
   svg.append("g")
     .attr("transform", "translate(0," + singleAxisHeight + ")")
-    .call(d3.axisBottom(x).ticks(5));
+    .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format("d")));
 
     // Add Y axis
-  var y = d3.scaleLinear()
-  .domain([0, d3.max(data, function(d) {console.log(d); return +d.n; })])
-  .range([ height, 0 ]);
-svg.append("g")
-  .call(d3.axisLeft(y));
+      var y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d) {return +d.n; })])
+      .range([ height, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));*/
+
+
 }
