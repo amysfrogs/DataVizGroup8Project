@@ -11,6 +11,10 @@ $('#yearSelector').on('change', function (i) {
         const world = d[0];
         const data = d[1];
         drawMap(world, data);
+        d3.select('#dualAxisLC').html("");
+        d3.select('#barChart').html("");
+        d3.select('#singleAxisLC').html("");
+
     })
 })
 
