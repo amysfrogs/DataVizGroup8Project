@@ -268,7 +268,7 @@ function drawDualAxisLineChart(data, selectedCountry) {
         .attr('transform', 'rotate(-90)')
         .attr('x', -((dualAxisHeight - margin.bottom) / 2))
         .attr('y', 10)
-        .text('Crime Rate')
+        .text('Homicide Rate')
 
     dualAxis.append('text')
         .attr('class', 'axisLabel')
@@ -316,7 +316,7 @@ function drawBarChart(data, selectedCountry) {
     d3.select('#barChart').html("");
 
     const barColumns = ['GDP per capita', 'Social support Index', 'Healthy life expectancy', 
-    'Freedom Index', 'Generosity Index', 'Corruption Index', 'Rate Of Homicides']
+    'Freedom Index', 'Generosity Index', 'Corruption Index', 'RateOfHomicides']
 
     const barColors = ['#5470c6', '#91cc75', '#fac858', '#73c0de', '#fc8452', '#9a60b4', '#ee6666']
 
