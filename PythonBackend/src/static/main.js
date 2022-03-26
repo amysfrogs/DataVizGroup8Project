@@ -316,7 +316,7 @@ function drawBarChart(data, selectedCountry) {
     d3.select('#barChart').html("");
 
     const barColumns = ['GDP per capita', 'Social support Index', 'Healthy life expectancy', 
-    'Freedom Index', 'Generosity Index', 'Corruption Index', 'RateOfHomicides']
+    'Freedom Index', 'Generosity Index', 'Corruption Index', 'Rate Of Homicides']
 
     const barColors = ['#5470c6', '#91cc75', '#fac858', '#73c0de', '#fc8452', '#9a60b4', '#ee6666']
 
@@ -334,7 +334,7 @@ function drawBarChart(data, selectedCountry) {
         }
     }
 
-    var margin = { top: 30, right: 30, bottom: 20, left: 120 },
+    var margin = { top: 40, right: 30, bottom: 20, left: 120 },
         svgWidth = 500, svgHeight = 150,
         width = svgWidth - margin.left - margin.right,
         height = svgHeight - margin.top - margin.bottom;
@@ -366,7 +366,14 @@ function drawBarChart(data, selectedCountry) {
         .attr('y', -20)
         .attr('text-anchor', 'middle')
         .attr('font-weight', 'bold')
-        .text('Various Indices of ' + selectedCountry + ' with Happiness Rank of ' + data[0]['Happiness rank'] + ' for Year: ' + selectedYear)
+        .text('Various Indices of ' + selectedCountry + ' for Year: ' + selectedYear)
+
+    /*svg.append('text')
+        .attr('x', svgWidth / 2-100)
+        .attr('y', -20)
+        .attr('text-anchor', 'middle')
+        .attr('font-weight', 'bold')
+        .text('Various Indices of ' + selectedCountry + ' with Happiness Rank of ' + data[0]['Happiness rank'] + ' for Year: ' + selectedYear)*/
 
     // Y axis
     var y = d3.scaleBand()
@@ -580,24 +587,6 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('fill', 'none')
         .attr('stroke', '#ee6666')
         .attr('stroke-width', 2)
-
-
-    
-    /*console.log(data)
-    // Add X axis 
-    var x = d3.scaleLinear()
-    .domain(d3.extent(data, function(d) { return +d.Year; }))
-    .range([ 0, singleAxisWidth ]);
-  svg.append("g")
-    .attr("transform", "translate(0," + singleAxisHeight + ")")
-    .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format("d")));
-
-    // Add Y axis
-      var y = d3.scaleLinear()
-      .domain([0, d3.max(data, function(d) {return +d.n; })])
-      .range([ height, 0 ]);
-    svg.append("g")
-      .call(d3.axisLeft(y));*/
 
 
 }
