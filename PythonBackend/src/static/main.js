@@ -397,22 +397,6 @@ function drawBarChart(data, selectedCountry) {
 
 function drawSingleAxisLineChart(data, selectedCountry) {
     d3.select('#singleAxisLC').html("");
-    console.log(data)
-    data.forEach(d => {
-        d['Country'] = d['Country']
-        d.Year = +d.Year;
-        d['HappinessRank'] = +d['Happiness rank']
-        d.Score = +d.Score
-        d['GDP per capita'] = +d['GDP per capita']
-        d['Social support Index'] = +d['Social support Index']
-        d['Healthy life expectancy'] = +d['Healthy life expectancy']
-        d['Freedom Index'] = +d['Freedom Index']
-        d['Generosity Index'] = +d['Generosity Index']
-        d['Corruption Index'] = +d['Corruption Index']
-        d['NumberOfHomicides'] = +d['NumberOfHomicides']
-        d['RateOfHomicides'] = +d['RateOfHomicides']
-    })
-    console.log(data)
 
     var margin = { top: 50, right: 10, bottom: 5, left: 50 },
         svgWidth = 500, svgHeight = 270,
@@ -435,8 +419,23 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('font-weight', 'bold')
         .text('Various Indices of ' + selectedCountry + ' across Years')
 
+    data.forEach(d => {
+        d['Country'] = d['Country']
+        d.Year = +d.Year;
+        d['HappinessRank'] = +d['Happiness rank']
+        d.Score = +d.Score
+        d['GDP per capita'] = +d['GDP per capita']
+        d['Social support Index'] = +d['Social support Index']
+        d['Healthy life expectancy'] = +d['Healthy life expectancy']
+        d['Freedom Index'] = +d['Freedom Index']
+        d['Generosity Index'] = +d['Generosity Index']
+        d['Corruption Index'] = +d['Corruption Index']
+        d['NumberOfHomicides'] = +d['NumberOfHomicides']
+        d['RateOfHomicides'] = +d['RateOfHomicides']
+    })
+
     //find min and max for use with scales
-    const year_min_max = d3.extent(data, d => +d.Year)
+    const year_min_max = d3.extent(data, d => d.Year)
     const vals_max = d3.max(data, function (d) {
         return (Math.max(
             d['GDP per capita'],
@@ -464,7 +463,7 @@ function drawSingleAxisLineChart(data, selectedCountry) {
     const yAxis = d3.axisLeft().scale(yScale);
 
     //append x axis
-    svg.append('g')
+    singleAxis.append('g')
         .attr('class', 'axis')
         .attr('transform', "translate(0," + yScale(0) + ")")
         .call(xAxis)
@@ -474,13 +473,13 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('dy', '2em')
 
     //append y axis
-    svg.append('g')
+    singleAxis.append('g')
         .attr('class', 'axis')
         .attr('transform', `translate(${margin.left}, 0)`)
         .call(yAxis)
 
     //add axis labels for x
-    svg.append('text')
+    singleAxis.append('text')
         .attr('class', 'axisLabel')
         .attr('text-anchor', 'end')
         .attr('x', (singleAxisWidth+margin.left) / 2)
@@ -511,70 +510,70 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .y(d => yScale(d['RateOfHomicides']))
 
     //Bind data and add path elements for each line
-    const lineChartGDP = svg.append('g')
+    const lineChartGDP = singleAxis.append('g')
         .attr('class', 'GDPLine')
         .selectAll('lines')
-        .data(data)
+        .data([data])
         .enter()
         .append('path')
-        .attr('d', d => lineGenGDP(+d))
+        .attr('d', d => lineGenGDP(d))
         .attr('fill', 'none')
         .attr('stroke', '#5470c6')
         .attr('stroke-width', 2)
-    const lineChartSocial = svg.append('g')
+    const lineChartSocial = singleAxis.append('g')
         .attr('class', 'SocialLine')
         .selectAll('lines')
-        .data(data)
+        .data([data])
         .enter()
         .append('path')
         .attr('d', d => lineGenSocial(d))
         .attr('fill', 'none')
         .attr('stroke', '#91cc75')
         .attr('stroke-width', 2)
-    const lineChartHealth = svg.append('g')
+    const lineChartHealth = singleAxis.append('g')
         .attr('class', 'HealthLine')
         .selectAll('lines')
-        .data(data)
+        .data([data])
         .enter()
         .append('path')
         .attr('d', d => lineGenHealth(d))
         .attr('fill', 'none')
         .attr('stroke', '#fac858')
         .attr('stroke-width', 2)
-    const lineChartFree = svg.append('g')
+    const lineChartFree = singleAxis.append('g')
         .attr('class', 'FreeLine')
         .selectAll('lines')
-        .data(data)
+        .data([data])
         .enter()
         .append('path')
         .attr('d', d => lineGenFree(d))
         .attr('fill', 'none')
         .attr('stroke', '#73c0de')
         .attr('stroke-width', 2)
-    const lineChartGen = svg.append('g')
+    const lineChartGen = singleAxis.append('g')
         .attr('class', 'GenLine')
         .selectAll('lines')
-        .data(data)
+        .data([data])
         .enter()
         .append('path')
         .attr('d', d => lineGenGen(d))
         .attr('fill', 'none')
         .attr('stroke', '#fc8452')
         .attr('stroke-width', 2)
-    const lineChartCorr = svg.append('g')
+    const lineChartCorr = singleAxis.append('g')
         .attr('class', 'CorrLine')
         .selectAll('lines')
-        .data(data)
+        .data([data])
         .enter()
         .append('path')
         .attr('d', d => lineGenCorr(d))
         .attr('fill', 'none')
         .attr('stroke', '#9a60b4')
         .attr('stroke-width', 2)
-    const lineChartCrime = svg.append('g')
+    const lineChartCrime = singleAxis.append('g')
         .attr('class', 'CrimeLine')
         .selectAll('lines')
-        .data(data)
+        .data([data])
         .enter()
         .append('path')
         .attr('d', d => lineGenCrime(d))
