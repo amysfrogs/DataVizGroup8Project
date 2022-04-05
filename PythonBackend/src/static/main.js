@@ -119,6 +119,7 @@ function drawMap(world, data) {
             d3.select(this)
                 .style("stroke", "darkgrey")
                 .style("stroke-width", 1)
+                .style('opacity', 0.6)
                 .style("cursor", "pointer");
         })
         .on('mouseout', function (d) {
@@ -139,10 +140,12 @@ function drawMap(world, data) {
                 d3.csv(HappinessUrl),
                 d3.csv(HappinessCurrentYearUrl)
             ]).then(data => {
+                if(data[0].length !== 0) {
                 populateSelectedCountryDiv(selectedCountry, data[1][0]['Happiness rank'])
                 drawDualAxisLineChart(data[0], selectedCountry);
                 drawBarChart(data[1], selectedCountry);
                 drawSingleAxisLineChart(data[0], selectedCountry);
+                }
             })
         });
 
@@ -229,10 +232,12 @@ function drawDualAxisLineChart(data, selectedCountry) {
         .domain(happiness_min_max)
         .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
 
+    const y2AxisTicks = y2Scale.ticks().filter(tick => Number.isInteger(tick));
+
     //add axis generators
     const xAxis = d3.axisTop().scale(xScale).ticks(5).tickFormat(d3.format("d"));
     const y1Axis = d3.axisLeft().scale(y1Scale);
-    const y2Axis = d3.axisRight().scale(y2Scale);
+    const y2Axis = d3.axisRight().scale(y2Scale).tickValues(y2AxisTicks).tickFormat(d3.format('d'));
 
     //append x axis
     dualAxis.append('g')
@@ -270,7 +275,7 @@ function drawDualAxisLineChart(data, selectedCountry) {
         .attr('class', 'axisLabel')
         .attr('text-anchor', 'end')
         .attr('transform', 'rotate(-90)')
-        .attr('x', -((dualAxisHeight - margin.bottom) / 2))
+        .attr('x', -((dualAxisHeight - margin.bottom) / 2) + 5)
         .attr('y', 10)
         .text('Homicide Rate')
 
@@ -278,8 +283,8 @@ function drawDualAxisLineChart(data, selectedCountry) {
         .attr('class', 'axisLabel')
         .attr('text-anchor', 'end')
         .attr('transform', 'rotate(-90)')
-        .attr('x', -((dualAxisHeight - margin.bottom - margin.top) / 2) + 20)
-        .attr('y', (margin.left + y2AxisShift) + 15)
+        .attr('x', -((dualAxisHeight - margin.bottom) / 2) + 20)
+        .attr('y', (margin.left + y2AxisShift) + 5)
         .text('Happiness Rank')
 
     //line generator for crime
