@@ -145,6 +145,7 @@ function drawMap(world, data) {
                 drawDualAxisLineChart(data[0], selectedCountry);
                 drawBarChart(data[1], selectedCountry);
                 drawSingleAxisLineChart(data[0], selectedCountry);
+                drawLegend();
                 }
             })
         });
@@ -597,5 +598,60 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('stroke', '#ee6666')
         .attr('stroke-width', 2)
 
+}
 
+function drawLegend() {
+    d3.select('#legend').html("");
+
+    var margin = { top: 10, right: 20, bottom: 10, left: 20 },
+        svgWidth = 200, svgHeight = 150,
+        legendWidth = svgWidth - margin.left - margin.right,
+        legendHeight = svgHeight - margin.top - margin.bottom;
+
+    let palette = ['#5470c6', '#91cc75', '#fac858', '#73c0de', '#fc8452', '#9a60b4', '#ee6666'];
+    let varNames = ['GDP per capita', 'Social support Index', 'Healthy life expectancy',
+    'Freedom Index', 'Generosity Index', 'Corruption Index', 'RateOfHomicides'];
+    let color = d3.scaleOrdinal(palette).domain(varNames);
+
+    //SVG for singleAxis graph
+    const svg = d3.select('#legend')
+        .append('svg')
+        .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+
+    const legend = svg.append('g')
+        .attr('transform', 'translate(20, 0)');
+
+    const size = 10;
+    const border_padding = 15;
+    const item_padding = 5;
+    const text_offset = 2;
+    //border
+    legend.append('rect')
+        .attr('width', legendWidth)
+        .attr('height', legendHeight)
+        .style('fill', 'none')
+        .style('stroke-width', 1)
+        .style('stroke', 'black');
+    //boxes
+    legend.selectAll('boxes')
+        .data(varNames)
+        .enter()
+        .append('rect')
+            .attr('x', border_padding)
+            .attr('y', (d, i) => border_padding + (i * (size + item_padding)))
+            .attr('width', size)
+            .attr('height', size)
+            .style('fill', (d) => color(d));
+    //labels
+    legend.selectAll('labels')
+        .data(varNames)
+        .enter()
+        .append('text')
+            .attr('x', border_padding + size + item_padding)
+            .attr('y', (d, i) => border_padding + i * (size + item_padding) + (size / 2) + text_offset)
+            .text((d) => d)
+            .attr('text-anchor', 'left')
+            .style('alignment-baseline', 'middle')
+            .style('font-family', 'Roboto, RobotoDraft, Helvetica, Arial, sans-serif')
+            .style('font-size', '7px');
 }
