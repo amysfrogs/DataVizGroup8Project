@@ -145,7 +145,7 @@ function drawMap(world, data) {
                 drawDualAxisLineChart(data[0], selectedCountry);
                 drawBarChart(data[1], selectedCountry);
                 drawSingleAxisLineChart(data[0], selectedCountry);
-                drawLegend();
+                //drawLegend();
                 }
             })
         });
@@ -170,7 +170,7 @@ function populateSelectedCountryDiv(selectedCountry, rank) {
 function drawDualAxisLineChart(data, selectedCountry) {
     d3.select('#dualAxisLC').html("");
 
-    var margin = { top: 50, right: 10, bottom: 5, left: 50 },
+    var margin = { top: 50, right: 50, bottom: 5, left: 50 },
         svgWidth = 500, svgHeight = 270,
         dualAxisWidth = svgWidth - margin.left - margin.right,
         dualAxisHeight = svgHeight - margin.top - margin.bottom;
@@ -298,7 +298,7 @@ function drawDualAxisLineChart(data, selectedCountry) {
         .y(d => y2Scale(d.HappinessRank))
     //Bind data and add path elements for crime data
     const lineChartCrime = dualAxis.append('g')
-        .attr('class', 'CrimeLine')
+        .attr('class', 'RateOfHomicides')
         .selectAll('lines')
         .data([selectedHappinessData])
         .enter()
@@ -307,9 +307,16 @@ function drawDualAxisLineChart(data, selectedCountry) {
         .attr('fill', 'none')
         .attr('stroke', '#ee6666')
         .attr('stroke-width', 2)
+        .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.RateOfHomicides`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        })
     //Bind data and add path elements for happiness data
     const lineChartHappy = dualAxis.append('g')
-        .attr('class', 'HappyLine')
+        .attr('class', 'HappinessRank')
         .selectAll('lines')
         .data([selectedHappinessData])
         .enter()
@@ -317,7 +324,62 @@ function drawDualAxisLineChart(data, selectedCountry) {
         .attr('d', d => lineGenHappy(d))
         .attr('fill', 'none')
         .attr('stroke', '#5470c6')
-        .attr('stroke-width', 2);
+        .attr('stroke-width', 2)
+        .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.HappinessRank`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        })
+
+    //legend code starts here
+    let palette = ['#ee6666', '#5470c6'];
+    let varNames = ['RateOfHomicides', 'HappinessRank'];
+    let color = d3.scaleOrdinal(palette).domain(varNames);
+
+    let legendWidth = svgWidth - margin.left - margin.right,
+        legendHeight = svgHeight - margin.top - margin.bottom;
+
+    const legend = svg.append('g')
+        .attr('transform', 'translate(20, 0)');
+
+    const size = 10;
+    const border_padding = 370;
+    const item_padding = 5;
+    const text_offset = 2;
+    const top_padding = legendHeight/5;
+
+    //boxes
+    legend.selectAll('boxes')
+        .data(varNames)
+        .enter()
+        .append('rect')
+            .attr('x', border_padding)
+            .attr('y', (d, i) => top_padding + (i * (size + item_padding)))
+            .attr('width', size)
+            .attr('height', size)
+            .attr('class', (d) => d)
+            .style('fill', (d) => color(d))
+            .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.${d3.select(this).attr('class')}`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        })
+    //labels
+    legend.selectAll('labels')
+        .data(varNames)
+        .enter()
+        .append('text')
+            .attr('x', border_padding + size + item_padding)
+            .attr('y', (d, i) => top_padding + i * (size + item_padding) + (size / 2) + text_offset)
+            .text((d) => d)
+            .attr('text-anchor', 'left')
+            .style('alignment-baseline', 'middle')
+            .style('font-family', 'Roboto, RobotoDraft, Helvetica, Arial, sans-serif')
+            .style('font-size', '10px');
 
 }
 
@@ -344,8 +406,8 @@ function drawBarChart(data, selectedCountry) {
         }
     }
 
-    var margin = { top: 40, right: 30, bottom: 20, left: 120 },
-        svgWidth = 500, svgHeight = 150,
+    var margin = { top: 40, right: 50, bottom: 30, left: 120 },
+        svgWidth = 500, svgHeight = 200,
         width = svgWidth - margin.left - margin.right,
         height = svgHeight - margin.top - margin.bottom;
 
@@ -392,7 +454,7 @@ function drawBarChart(data, selectedCountry) {
         .padding(.4);
     svg.append("g")
         .call(d3.axisLeft(y))
-
+console.log(barChartData)
     //Bars
     svg.selectAll("myRect")
         .data(barChartData)
@@ -403,11 +465,15 @@ function drawBarChart(data, selectedCountry) {
         .attr("width", d => x(d[Object.keys(d)[0]]))
         .attr("height", y.bandwidth())
         .attr("fill", d => d.color)
-        .on('mouseenter', function (actual, i) {
-            d3.select(this).attr('opacity', 0.5)
+        .attr('class', function (d) {
+                return Object.keys(d).toString().split(' ').shift().split(',').shift();
+            })
+        .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.${d3.select(this).attr('class')}`).classed('hover', true);
         })
-        .on('mouseleave', function (actual, i) {
-            d3.select(this).attr('opacity', 1)
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
         })
 
 }
@@ -415,7 +481,7 @@ function drawBarChart(data, selectedCountry) {
 function drawSingleAxisLineChart(data, selectedCountry) {
     d3.select('#singleAxisLC').html("");
 
-    var margin = { top: 50, right: 10, bottom: 5, left: 50 },
+    var margin = { top: 50, right: 170, bottom: 5, left: 60 },
         svgWidth = 500, svgHeight = 270,
         singleAxisWidth = svgWidth - margin.left - margin.right,
         singleAxisHeight = svgHeight - margin.top - margin.bottom;
@@ -469,7 +535,7 @@ function drawSingleAxisLineChart(data, selectedCountry) {
     //add scales
     const xScale = d3.scaleLinear()
         .domain(year_min_max)
-        .range([margin.left, `${singleAxisWidth}` - margin.right]);
+        .range([margin.left, `${svgWidth}` - margin.right]);
 
     const yScale = d3.scaleLinear()
         .domain(vals_min_max)
@@ -528,7 +594,7 @@ function drawSingleAxisLineChart(data, selectedCountry) {
 
     //Bind data and add path elements for each line
     const lineChartGDP = singleAxis.append('g')
-        .attr('class', 'GDPLine')
+        .attr('class', 'GDP')
         .selectAll('lines')
         .data([data])
         .enter()
@@ -537,8 +603,15 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('fill', 'none')
         .attr('stroke', '#5470c6')
         .attr('stroke-width', 2)
+        .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.${d3.select(this).attr('class')}`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        })
     const lineChartSocial = singleAxis.append('g')
-        .attr('class', 'SocialLine')
+        .attr('class', 'Social')
         .selectAll('lines')
         .data([data])
         .enter()
@@ -547,8 +620,15 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('fill', 'none')
         .attr('stroke', '#91cc75')
         .attr('stroke-width', 2)
+        .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.${d3.select(this).attr('class')}`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        })
     const lineChartHealth = singleAxis.append('g')
-        .attr('class', 'HealthLine')
+        .attr('class', 'Healthy')
         .selectAll('lines')
         .data([data])
         .enter()
@@ -557,8 +637,15 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('fill', 'none')
         .attr('stroke', '#fac858')
         .attr('stroke-width', 2)
+        .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.${d3.select(this).attr('class')}`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        })
     const lineChartFree = singleAxis.append('g')
-        .attr('class', 'FreeLine')
+        .attr('class', 'Freedom')
         .selectAll('lines')
         .data([data])
         .enter()
@@ -567,8 +654,15 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('fill', 'none')
         .attr('stroke', '#73c0de')
         .attr('stroke-width', 2)
+        .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.${d3.select(this).attr('class')}`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        })
     const lineChartGen = singleAxis.append('g')
-        .attr('class', 'GenLine')
+        .attr('class', 'Generosity')
         .selectAll('lines')
         .data([data])
         .enter()
@@ -577,8 +671,15 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('fill', 'none')
         .attr('stroke', '#fc8452')
         .attr('stroke-width', 2)
+        .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.${d3.select(this).attr('class')}`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        })
     const lineChartCorr = singleAxis.append('g')
-        .attr('class', 'CorrLine')
+        .attr('class', 'Corruption')
         .selectAll('lines')
         .data([data])
         .enter()
@@ -587,8 +688,15 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('fill', 'none')
         .attr('stroke', '#9a60b4')
         .attr('stroke-width', 2)
+        .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.${d3.select(this).attr('class')}`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        })
     const lineChartCrime = singleAxis.append('g')
-        .attr('class', 'CrimeLine')
+        .attr('class', 'RateOfHomicides')
         .selectAll('lines')
         .data([data])
         .enter()
@@ -597,61 +705,63 @@ function drawSingleAxisLineChart(data, selectedCountry) {
         .attr('fill', 'none')
         .attr('stroke', '#ee6666')
         .attr('stroke-width', 2)
-
-}
-
-function drawLegend() {
-    d3.select('#legend').html("");
-
-    var margin = { top: 10, right: 20, bottom: 10, left: 20 },
-        svgWidth = 200, svgHeight = 150,
-        legendWidth = svgWidth - margin.left - margin.right,
-        legendHeight = svgHeight - margin.top - margin.bottom;
-
+        .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.${d3.select(this).attr('class')}`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        })
+    //legend code starts here
     let palette = ['#5470c6', '#91cc75', '#fac858', '#73c0de', '#fc8452', '#9a60b4', '#ee6666'];
     let varNames = ['GDP per capita', 'Social support Index', 'Healthy life expectancy',
     'Freedom Index', 'Generosity Index', 'Corruption Index', 'RateOfHomicides'];
     let color = d3.scaleOrdinal(palette).domain(varNames);
 
-    //SVG for singleAxis graph
-    const svg = d3.select('#legend')
-        .append('svg')
-        .attr("viewBox", "0 0 " + svgWidth + " " + svgHeight);
+    let legendWidth = svgWidth - margin.left - margin.right,
+        legendHeight = svgHeight - margin.top - margin.bottom;
 
     const legend = svg.append('g')
         .attr('transform', 'translate(20, 0)');
 
     const size = 10;
-    const border_padding = 15;
+    const border_padding = 350;
     const item_padding = 5;
     const text_offset = 2;
-    //border
-    legend.append('rect')
-        .attr('width', legendWidth)
-        .attr('height', legendHeight)
-        .style('fill', 'none')
-        .style('stroke-width', 1)
-        .style('stroke', 'black');
+    const top_padding = legendHeight/2.5;
+
     //boxes
     legend.selectAll('boxes')
         .data(varNames)
         .enter()
         .append('rect')
             .attr('x', border_padding)
-            .attr('y', (d, i) => border_padding + (i * (size + item_padding)))
+            .attr('y', (d, i) => top_padding + (i * (size + item_padding)))
             .attr('width', size)
             .attr('height', size)
-            .style('fill', (d) => color(d));
+            .style('fill', (d) => color(d))
+            .attr('class', function (d) {
+                return d.split(' ').shift();
+            })
+            .on('mouseenter', function (d) {
+            d3.selectAll('*').classed('hover', false);
+            d3.selectAll(`.${d3.select(this).attr('class')}`).classed('hover', true);
+        })
+        .on('mouseleave', function (d) {
+            d3.selectAll('*').classed('hover', false);
+        });
     //labels
     legend.selectAll('labels')
         .data(varNames)
         .enter()
         .append('text')
             .attr('x', border_padding + size + item_padding)
-            .attr('y', (d, i) => border_padding + i * (size + item_padding) + (size / 2) + text_offset)
+            .attr('y', (d, i) => top_padding + i * (size + item_padding) + (size / 2) + text_offset)
             .text((d) => d)
             .attr('text-anchor', 'left')
             .style('alignment-baseline', 'middle')
             .style('font-family', 'Roboto, RobotoDraft, Helvetica, Arial, sans-serif')
-            .style('font-size', '7px');
+            .style('font-size', '10px');
+
 }
+
