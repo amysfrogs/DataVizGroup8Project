@@ -217,7 +217,13 @@ function drawDualAxisLineChart(data, selectedCountry) {
     //find min and max for use with scales
     const year_min_max = d3.extent(happiness_data, d => +d.Year)
     const crime_max = d3.max(happiness_data, d => +d.RateOfHomicides)
-    const crime_min_max = [0, +crime_max]
+    let crime_min_max = []
+        if(crime_max === 0) {
+            crime_min_max = [0, 1];
+            }
+        else {
+        crime_min_max =  [0, +crime_max]
+        }
     const happiness_min_max = d3.extent(happiness_data, d => +d.HappinessRank)
 
     //add scales
@@ -228,6 +234,8 @@ function drawDualAxisLineChart(data, selectedCountry) {
     const y1Scale = d3.scaleLinear()
         .domain(crime_min_max)
         .range([`${dualAxisHeight}` - margin.bottom, margin.top]);
+
+        console.log(crime_min_max)
         
     const y2Scale = d3.scaleLinear()
         .domain(happiness_min_max)
@@ -454,7 +462,7 @@ function drawBarChart(data, selectedCountry) {
         .padding(.4);
     svg.append("g")
         .call(d3.axisLeft(y))
-console.log(barChartData)
+
     //Bars
     svg.selectAll("myRect")
         .data(barChartData)
