@@ -3,7 +3,9 @@ Data Visualization Project for Group 8.
 
 ## Team Members
 Amy Westell
+
 Sreekanth Radhakrishnan
+
 Gopi Kirshna Vajrala
 
 
