@@ -1,7 +1,13 @@
-# DataVizGroup8Project
-Data Visualization Project for Group 8.
+# Correlation of the Happiness Index with Homicide Rates
+
+The world happiness index already incorporates data from many categories into its rankings. 
+We were interested in how a data category not already incorporated into the rankings compared to the happiness score. The homicide rates seemed like an appropriate variable that fit this criteria. 
+The initial thought is that a country with a higher happiness score would have a lower homicide rate, but does this expected relationship hold up?
 
 ## Team Members
+
+Data Visualization Project for Group 8.
+
 Amy Westell
 
 Sreekanth Radhakrishnan
