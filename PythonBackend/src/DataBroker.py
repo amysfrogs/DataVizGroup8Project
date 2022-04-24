@@ -5,8 +5,8 @@ import pandas as pd
 
 class DataBroker(Resource):
 
-    consolidated_data = "../data/ConsolidatedHappinessWithHomicideData.csv"
-    country_data = "../data/50m.json"
+    consolidated_data = "./data/ConsolidatedHappinessWithHomicideData.csv"
+    country_data = "./data/50m.json"
     columns = ['Year', 'Country', 'Happiness rank', 'Score', 'GDP per capita', 'Social support Index',
                'Healthy life expectancy', 'Freedom Index', 'Generosity Index', 'Corruption Index',
                'NumberOfHomicides', 'RateOfHomicides']

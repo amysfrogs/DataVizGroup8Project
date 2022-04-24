@@ -3,11 +3,11 @@ import pandas as pd
 
 class DataInit:
 
-    homicide_data = "../data/IntentionalHomicideVictimsByCountsAndRates.csv"
-    happiness_data = "../data/ConsolidatedHappiness.csv"
-    homicide_data_refined = "../data/IntentionalHomicidesFormatted.csv"
-    consolidated_data = "../data/ConsolidatedHappinessWithHomicideData.csv"
-    country_name_mapping = "../data/CountryNameMapping.csv"
+    homicide_data = "./data/IntentionalHomicideVictimsByCountsAndRates.csv"
+    happiness_data = "./data/ConsolidatedHappiness.csv"
+    homicide_data_refined = "./data/IntentionalHomicidesFormatted.csv"
+    consolidated_data = "./data/ConsolidatedHappinessWithHomicideData.csv"
+    country_name_mapping = "./data/CountryNameMapping.csv"
 
     def __init__(self):
         print("Initializing DataInit Class...")
